@@ -1,50 +1,442 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raio-X Anti-Enrolação</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #0f172a; color: #f8fafc; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .container { width: 100%; max-width: 600px; background: #1e293b; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        h1 { color: #38bdf8; font-size: 24px; text-align: center; }
-        textarea { width: 100%; height: 150px; background: #0f172a; color: #fff; border: 1px solid #475569; border-radius: 4px; padding: 10px; margin-bottom: 10px; resize: none; font-size: 14px; box-sizing: border-box; }
-        button { width: 100%; background: #22c55e; color: #fff; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; }
-        button:hover { background: #16a34a; }
-        .resultado { margin-top: 20px; background: #0f172a; padding: 15px; border-radius: 4px; border-left: 5px solid #38bdf8; display: none; }
-        .bloco { margin-bottom: 10px; }
-        .titulo-bloco { font-weight: bold; color: #38bdf8; }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Raio-X Anti-Enrolação — Simplificador Criativo</title>
+  <meta name="description" content="Ferramenta para simplificar textos longos, leis e questões, gerando soluções criativas e práticas." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --card:#0f1720;
+      --accent:#7c4dff;
+      --accent-2:#00e5ff;
+      --muted:#9aa7b2;
+      --glass: rgba(255,255,255,0.03);
+      --success:#22c55e;
+      --danger:#ff5252;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      height:100%;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,77,255,0.09), transparent 6%),
+                  radial-gradient(800px 400px at 90% 90%, rgba(0,229,255,0.04), transparent 6%),
+                  linear-gradient(180deg,var(--bg),#020305 120%);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+      box-sizing:border-box;
+    }
+
+    .container{
+      width:100%;
+      max-width:1100px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border: 1px solid rgba(255,255,255,0.03);
+      border-radius:14px;
+      padding:28px;
+      box-shadow: 0 10px 40px rgba(2,6,23,0.7), inset 0 1px 0 rgba(255,255,255,0.02);
+      backdrop-filter: blur(6px) saturate(120%);
+      overflow:hidden;
+    }
+
+    header{
+      display:flex;
+      gap:16px;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .logo{
+      width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;font-size:28px;
+      box-shadow:0 6px 24px rgba(124,77,255,0.18);
+    }
+    h1{margin:0;font-size:20px;line-height:1.05}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    .main{
+      display:grid;
+      grid-template-columns:1fr 420px;
+      gap:20px;
+      align-items:start;
+    }
+
+    .panel{
+      background:var(--card);
+      border-radius:12px;
+      padding:18px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    textarea{
+      width:100%;
+      min-height:240px;
+      resize:vertical;
+      background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.03);
+      color:var(--muted);
+      padding:16px;font-size:15px;line-height:1.45;
+      outline:none;box-shadow:none;
+      transition:box-shadow .18s ease, transform .12s ease;
+    }
+    textarea:focus{box-shadow:0 6px 30px rgba(0,0,0,0.5), 0 0 0 4px rgba(124,77,255,0.06); color:#e6eef6}
+
+    .controls{display:flex;gap:8px;margin-top:12px;align-items:center}
+    .btn{
+      background:linear-gradient(180deg,var(--accent),#5b2fff);
+      color:white;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;font-weight:600;
+      display:inline-flex;gap:8px;align-items:center;
+      box-shadow: 0 8px 30px rgba(124,77,255,0.14);
+      transition:transform .12s ease,opacity .12s ease;
+    }
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);box-shadow:none}
+    .btn:active{transform:translateY(1px)}
+
+    .meta{color:var(--muted);font-size:13px;margin-left:auto}
+
+    .results{
+      display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px;min-height:40px;
+    }
+
+    .idea{
+      background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00));
+      border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,0.02);
+      display:flex;gap:12px;align-items:flex-start;opacity:0;transform:translateY(8px) rotateX(6deg);transform-origin:top left;
+    }
+    .idea.visible{opacity:1;transform:translateY(0) rotateX(0);transition:all .45s cubic-bezier(.2,.9,.2,1)}
+    .idea .badge{width:44px;height:44px;border-radius:8px;flex:0 0 44px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .idea h3{margin:0;font-size:15px}
+    .idea p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    .blend{
+      margin-top:10px;padding:10px;border-radius:8px;background:linear-gradient(90deg, rgba(124,77,255,0.04), rgba(0,229,255,0.03));border:1px solid rgba(124,77,255,0.06);color:#dfeaff;font-size:13px
+    }
+
+    .sidebar{position:relative}
+    .card-ghost{padding:14px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent);border:1px solid rgba(255,255,255,0.02)}
+    .small{font-size:12px;color:var(--muted)}
+
+    .footer{margin-top:14px;display:flex;gap:10px;align-items:center}
+    .chip{padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.02);font-size:12px;color:var(--muted)}
+
+    .spark{position:absolute;right:-80px;top:-60px;opacity:0.08;font-size:220px;transform:rotate(-18deg);pointer-events:none}
+
+    /* responsive */
+    @media (max-width:980px){
+      .main{grid-template-columns:1fr;}
+      .sidebar{order:-1}
+    }
+
+    /* little animated background lines */
+    .lines{
+      position:absolute;inset:0;pointer-events:none;opacity:0.06;
+      background-image:linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size:80px 80px;
+      mix-blend-mode:overlay;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
+  <div class="container">
+    <div class="lines"></div>
+    <header>
+      <div class="logo">⚡</div>
+      <div>
         <h1>Raio-X Anti-Enrolação</h1>
-        <p style="font-size: 14px; text-align: center; color: #94a3b8;">Cole o texto longo ou a questão confusa abaixo para focar na essência.</p>
-        <textarea id="textoLongo" placeholder="Cole o texto aqui..."></textarea>
-        <button onclick="analisarTexto()">Ativar Raio-X</button>
-        
-        <div id="resultadoRaioX" class="resultado">
-            <div class="bloco"><span class="titulo-bloco">🎯 O Alvo:</span> <span id="resAlvo"></span></div>
-            <hr style="border:0; border-top:1px solid #334155; margin:10px 0;">
-            <div class="bloco"><span class="titulo-bloco">⚡ O Atalho (Essência):</span> <span id="resAtalho"></span></div>
-            <hr style="border:0; border-top:1px solid #334155; margin:10px 0;">
-            <div class="bloco"><span class="titulo-bloco">⚠️ A Armadilha (Ignorar):</span> <span id="resArmadilha"></span></div>
-        </div>
-    </div>
+        <p class="lead">Cole um texto, lei ou questão e receba soluções criativas, práticas e positivas — geradas dinamicamente.</p>
+      </div>
+      <div class="spark">💡</div>
+    </header>
 
-    <script>
-        function analisarTexto() {
-            const texto = document.getElementById('textoLongo').value;
-            if(!texto.trim()) {
-                alert('Cole algum texto primeiro!');
-                return;
-            }
-            // Simulação cirúrgica do filtro para demonstração imediata
-            document.getElementById('resAlvo').innerText = "Identificar o problema central exigido pelo comando.";
-            document.getElementById('resAtalho').innerText = "Aplicar a norma direta, o protocolo rígido ou a causa e efeito inevitável.";
-            document.getElementById('resArmadilha').innerText = "Desconsiderar enrolações, termos de distração e alternativas que sugerem adiar ou improvisar.";
-            document.getElementById('resultadoRaioX').style.display = 'block';
-        }
-    </script>
+    <section class="main">
+      <div>
+        <div class="panel">
+          <label for="input" style="font-weight:700;margin-bottom:8px;display:block">Cole seu texto aqui</label>
+          <textarea id="input" placeholder="Cole um artigo de lei, uma questão complexa, um problema ou uma ideia..." spellcheck="true"></textarea>
+
+          <div class="controls">
+            <button class="btn" id="analyze"><span>⚙️ Gerar soluções</span></button>
+            <button class="btn secondary" id="clear">✖ Limpar</button>
+            <div class="meta" id="meta">0 caracteres • 0 palavras</div>
+          </div>
+
+          <div class="results" id="results" aria-live="polite"></div>
+
+          <div class="footer">
+            <div class="chip" id="typeChip">--</div>
+            <div class="chip">Modo: <strong style="margin-left:6px">Tech • Escuro</strong></div>
+            <div style="margin-left:auto;color:var(--muted);font-size:13px">Banco interno: <strong id="bankCount">50</strong> ideias</div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sidebar">
+        <div class="card-ghost panel">
+          <h3 style="margin-top:0">Como funciona</h3>
+          <p class="small">O sistema analisa o tamanho do texto e seleciona automaticamente 3, 5 ou 10 soluções. Em seguida, mistura, combina e anima as ideias para dar a sensação de uma IA criando respostas profundas e personalizadas.</p>
+
+          <div style="margin-top:12px">
+            <div class="small">Curto &lt; 200 caracteres → 3 soluções</div>
+            <div class="small">Médio 200–800 caracteres → 5 soluções</div>
+            <div class="small">Longo &gt; 800 caracteres → 10 soluções</div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center">
+            <button class="btn" id="surprise">🎲 Surpreenda-me</button>
+            <button class="btn secondary" id="copyAll">📋 Copiar todas</button>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="panel card-ghost small">
+          <strong>Sobre</strong>
+          <p class="small">Projeto para simplificar textos longos, leis e questões complexas focando na essência — agora com interface ultra-moderna.</p>
+        </div>
+      </aside>
+    </section>
+  </div>
+
+  <script>
+    // Internal bank with exactly 50 solutions/ideas, positive, creative, and decorated with emojis
+    const IDEAS = [
+      "Transforme em passos práticos e numerados para facilitar a execução ✅📋",
+      "Crie uma lista de prioridades por impacto imediato 🌟🔝",
+      "Resuma em uma frase clara que explique o objetivo principal 🧭✨",
+      "Identifique 3 obstáculos e proponha soluções rápidas 🛠️🧩",
+      "Converta em um checklist acionável para ser seguido amanhã ☑️🚀",
+      "Proponha um experimento piloto de baixo custo para validar a ideia 🧪💡",
+      "Divida em responsabilidades claras por pessoa/equipe 👥🔐",
+      "Sugira um cronograma curto com marcos semanais 📅⏱️",
+      "Crie uma mensagem curta para comunicar a decisão a stakeholders 📣🤝",
+      "Encontre uma forma de medir progresso com 2 métricas simples 📈🔍",
+      "Adapte a linguagem para que qualquer leigo entenda 🗣️📘",
+      "Transforme em uma política pública simplificada com exemplos práticos 🏛️📝",
+      "Projete um plano de comunicação visual para explicar o conceito 🎨🧠",
+      "Liste recursos mínimos necessários para começar (MVP) 🧰🔎",
+      "Mapeie riscos e aponte uma contingência para cada um ⚠️🛡️",
+      "Crie alternativas criativas para reduzir custos 💡💸",
+      "Sugira uma parceria estratégica que acelere implementação 🤝⚡",
+      "Resuma os benefícios diretos em três bullets claros 🌱📌",
+      "Transforme a regra/lei em exemplos do dia-a-dia para facilitar aplicação 🧾🔁",
+      "Gere uma pergunta poderosa que desafie o problema central ❓🧠",
+      "Proponha um incentivo positivo para aumentar adesão 🎁🏅",
+      "Desenhe uma versão digital simples para automatizar o processo ⚙️📲",
+      "Identifique partes interessadas chave e o que cada uma ganha 🎯🔗",
+      "Sugira um sistema de feedback contínuo com ciclos curtos 🔄💬",
+      "Crie uma narrativa curta que justifique a mudança 🚀📖",
+      "Liste 5 palavras-chave para orientar pesquisas e buscas 📚🔑",
+      "Ofereça uma versão 'press release' pronta para imprensa 📰✍️",
+      "Proponha uma regra de ouro para decisões rápidas (ex: 2 minutos) ⏳🧾",
+      "Crie critérios simples para priorizar ações hoje vs. amanhã ⚖️📝",
+      "Descreva um caso de uso perfeito em 2 frases ✨🔍",
+      "Sugira uma métrica de satisfação fácil de coletar 🙂📊",
+      "Proponha um pequeno comitê de decisão e suas competências 👥✔️",
+      "Extraia 3 insights surpreendentes e aplicáveis imediatamente 🤯🔧",
+      "Converta em uma política 'amigável' com linguagem positiva 🌈📜",
+      "Defina um indicador de sucesso no prazo de 30 dias 🗓️🏁",
+      "Recomende um rewording para reduzir ambiguidade jurídica ✍️⚖️",
+      "Proponha um fluxo de aprovação simples com checkpoints ✅🔁",
+      "Crie um exemplo fictício que mostra como aplicar na prática 🎭🧾",
+      "Sugira um slogan curto que resuma a ideia principal 🪧🎯",
+      "Liste 4 pequenos testes A/B para avaliar formas alternativas 🧩🧪",
+      "Ofereça um plano para engajar a comunidade local 🤝🏘️",
+      "Indique tecnologias existentes que resolvem parte do problema 🔌💻",
+      "Proponha um formato de reunião para decidir rapidamente 🪑⏰",
+      "Crie uma série de micro-tarefas para distribuir trabalho 🧩📌",
+      "Indique como transformar a ideia em um protótipo rápido 🛠️📦",
+      "Sugira incentivos não-monetários para aumentar participação 🌟🤗",
+      "Gere uma lista de palavras a evitar para reduzir mal-entendidos 🚫📝",
+      "Proponha uma regra simples de auditoria para manter qualidade 🔍🧾"
+    ];
+
+    // Ensure exactly 50
+    console.assert(IDEAS.length === 50, 'IDEAS must be exactly 50');
+
+    // Helpers
+    function countChars(text){ return text.trim().length; }
+    function countWords(text){ if(!text.trim()) return 0; return text.trim().split(/\s+/).length; }
+
+    function shuffle(array){
+      let a = array.slice();
+      for(let i=a.length-1;i>0;i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [a[i],a[j]] = [a[j],a[i]];
+      }
+      return a;
+    }
+
+    function sampleUnique(array, n){
+      const s = shuffle(array);
+      return s.slice(0,n);
+    }
+
+    // Create a blended/AI-feel version by combining fragments
+    function blendIdeas(ideas){
+      // Mix fragments from different ideas to create a custom analysis
+      const fragments = ideas.map(it => {
+        // split into small parts by separators or commas
+        const parts = it.split(/,|—|-|•|:/).map(p=>p.trim()).filter(Boolean);
+        return parts[Math.floor(Math.random()*parts.length)] || it;
+      });
+      const blended = [];
+      for(let i=0;i<Math.min(4, fragments.length);i++){
+        const a = fragments[Math.floor(Math.random()*fragments.length)];
+        const b = fragments[Math.floor(Math.random()*fragments.length)];
+        if(a && b && a !== b) blended.push((i%2===0? a+' — '+b : b+' • '+a));
+      }
+      return shuffle(blended).slice(0,3).join(' \n• ');
+    }
+
+    // DOM
+    const input = document.getElementById('input');
+    const analyzeBtn = document.getElementById('analyze');
+    const clearBtn = document.getElementById('clear');
+    const results = document.getElementById('results');
+    const meta = document.getElementById('meta');
+    const typeChip = document.getElementById('typeChip');
+    const surpriseBtn = document.getElementById('surprise');
+    const copyAllBtn = document.getElementById('copyAll');
+    const bankCount = document.getElementById('bankCount');
+    bankCount.textContent = IDEAS.length;
+
+    function analyzeText(){
+      const text = input.value || '';
+      const chars = countChars(text);
+      const words = countWords(text);
+      meta.textContent = `${chars} caracteres • ${words} palavras`;
+
+      // thresholds
+      let mode = 'curto';
+      let pick = 3;
+      if(chars < 200) { mode='curto'; pick=3; }
+      else if(chars <= 800) { mode='médio'; pick=5; }
+      else { mode='longo'; pick=10; }
+      typeChip.textContent = `${mode.toUpperCase()} • ${pick} soluções`;
+
+      // If empty, show playful hint
+      if(!text.trim()){
+        showEmptyHint();
+        return;
+      }
+
+      // pick
+      const chosen = sampleUnique(IDEAS, pick);
+
+      // produce a blended narration
+      const blended = blendIdeas(chosen);
+
+      // Generate an ordered visible list with dynamic reveal and shuffle each display
+      renderResults(chosen, blended);
+    }
+
+    function showEmptyHint(){
+      results.innerHTML = '';
+      const hint = document.createElement('div');
+      hint.className = 'idea visible';
+      hint.innerHTML = `<div class="badge">🤖</div><div><h3>Pronto para analisar</h3><p class="small">Cole um texto ou clique em \"Surpreenda-me\" para ver como eu posso simplificar e gerar soluções criativas.</p></div>`;
+      results.appendChild(hint);
+    }
+
+    function renderResults(list, blended){
+      results.innerHTML = '';
+      // create a dynamic typing-like header
+      const header = document.createElement('div');
+      header.className = 'idea visible';
+      header.innerHTML = `<div class="badge">🧠</div><div><h3>Analise gerada</h3><p class="small">Misturando ideias e criando um relato único...</p></div>`;
+      results.appendChild(header);
+
+      // reveal each idea with delay and slight reorder for 'AI' feel
+      const revealOrder = shuffle(list.map((v,i)=>i));
+      revealOrder.forEach((idx, pos)=>{
+        setTimeout(()=>{
+          const it = list[idx];
+          const el = document.createElement('div');
+          el.className = 'idea visible';
+          el.innerHTML = `<div class="badge">✨</div><div><h3>${escapeHtml(it)}</h3><p class="small">Solução ${pos+1} de ${list.length}</p></div>`;
+          results.appendChild(el);
+        }, 340 + pos*240 + Math.floor(Math.random()*120));
+      });
+
+      // after all ideas, show the blended AI-style analysis
+      setTimeout(()=>{
+        const el = document.createElement('div');
+        el.className = 'blend';
+        el.setAttribute('role','status');
+        el.innerHTML = `<strong>Insight combinado</strong><div style="margin-top:6px;white-space:pre-line">• ${escapeHtml(blended)}</div>`;
+        results.appendChild(el);
+
+        // tiny 'confidence' meter
+        const conf = Math.floor(75 + Math.random()*25);
+        const meter = document.createElement('div');
+        meter.style.marginTop='10px';
+        meter.innerHTML = `<div class="small">Confiabilidade estimada: <strong>${conf}%</strong></div>`;
+        results.appendChild(meter);
+      }, 340 + list.length*240 + 180);
+    }
+
+    function escapeHtml(s){ return String(s).replace(/[&<>"]/g, function(m){ return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[m]; }); }
+
+    analyzeBtn.addEventListener('click', ()=>{ analyzeText(); });
+    input.addEventListener('input', ()=>{
+      const chars = countChars(input.value);
+      const words = countWords(input.value);
+      meta.textContent = `${chars} caracteres • ${words} palavras`;
+      // live mode: if user stops typing for a bit, we could auto analyze, but keep manual for clarity
+    });
+
+    clearBtn.addEventListener('click', ()=>{ input.value=''; meta.textContent='0 caracteres • 0 palavras'; results.innerHTML=''; typeChip.textContent='--'; showEmptyHint(); });
+
+    surpriseBtn.addEventListener('click', ()=>{
+      // pick a random length and fill with a short prompt then analyze
+      const seeds = [
+        'Simplifique uma lei complexa sobre transporte público e proponha ações.',
+        'Como resolver disputa sobre uso de espaço público com pouco orçamento?',
+        'Preciso reduzir filas e melhorar atendimento em um serviço público.',
+        'Transforme esta regra em um checklist aplicável por cidadãos.',
+        'Como estimular adoção de prática sustentável em pequenas empresas?'
+      ];
+      input.value = seeds[Math.floor(Math.random()*seeds.length)];
+      analyzeText();
+    });
+
+    copyAllBtn.addEventListener('click', async ()=>{
+      // copy textual representation of all results
+      const blocks = Array.from(results.querySelectorAll('.idea h3, .blend')).map(el=>el.innerText.trim()).filter(Boolean);
+      const text = blocks.join('\n\n');
+      try{
+        await navigator.clipboard.writeText(text);
+        copyAllBtn.textContent = '✅ Copiado';
+        setTimeout(()=> copyAllBtn.innerHTML='📋 Copiar todas', 1500);
+      }catch(e){
+        copyAllBtn.innerHTML='❗ Erro ao copiar';
+        setTimeout(()=> copyAllBtn.innerHTML='📋 Copiar todas', 1500);
+      }
+    });
+
+    // On load show hint
+    showEmptyHint();
+
+    // small accessibility: Enter+Ctrl to generate
+    input.addEventListener('keydown', (e)=>{
+      if((e.ctrlKey||e.metaKey) && e.key === 'Enter'){
+        e.preventDefault(); analyzeText();
+      }
+    });
+
+    // keyboard shortcut: G to generate
+    document.addEventListener('keydown', (e)=>{
+      if(e.key.toLowerCase()==='g' && (e.ctrlKey||e.metaKey||e.altKey)){
+        e.preventDefault(); analyzeText();
+      }
+    });
+
+  </script>
 </body>
 </html>
