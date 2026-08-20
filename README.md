@@ -1,2 +1,3 @@
 # raio-x-anti-enrolacao
 Projeto para simplificar textos longos, leis e questões complexas focando na essência.
+Finalidade e Importância: Este projeto nasceu da necessidade real de eliminar o cansaço mental causado por textos longos, leis confusas e enunciados cheios de armadilhas em provas e no trabalho diário. Sua função é atuar como um filtro cirúrgico, traduzindo complexidades em blocos visuais diretos: o objetivo real (o alvo), a regra aplicável (o atalho) e o que deve ser descartado (a armadilha). É importante porque treina a mente a focar na essência, garantindo velocidade, clareza e conformidade sem perder tempo com ruídos.
